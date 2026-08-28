@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ktb's Advanced Hydration & Digestion Lab</title>
+    <style>
+        :root {
+            --primary: #0077b6;
+            --secondary: #00b4d8;
+            --accent: #90e0ef;
+            --bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --text: #212529;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #caf0f8, #ade8f4);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 650px;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 5px;
+            font-size: 24px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #6c757d;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #03045e;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ced4da;
+            border-radius: 10px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: 0.3s;
+        }
+        input:focus, select:focus {
+            border-color: var(--secondary);
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 180, 216, 0.4);
+        }
+        button {
+            background: linear-gradient(135deg, #0077b6, #00b4d8);
+            color: white;
+            border: none;
+            padding: 15px;
+            width: 100%;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: linear-gradient(135deg, #03045e, #0077b6);
+            transform: translateY(-2px);
+        }
+        .result-card, .app-content, .login-section {
+            display: none;
+        }
+        .active {
+            display: block;
+        }
+        .result-card {
+            margin-top: 25px;
+            background: #e0fbfc;
+            border-left: 6px solid var(--primary);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .metric {
+            font-size: 18px;
+            margin: 10px 0;
+        }
+        .highlight {
+            font-weight: bold;
+            color: #d90429;
+        }
+        .safe {
+            font-weight: bold;
+            color: #2b9348;
+        }
+        .hint {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>💧 Ktb's Hydration Lab</h1>
+    <div class="subtitle">Secure Menu-Based Water & Digestion Calculator</div>
+
+    <!-- Login Section with passcode -->
+    <div id="loginSection" class="active">
+        <div class="form-group">
+            <label for="passCode">Enter 4-Digit Security Code:</label>
+            <input type="password" id="passCode" maxlength="4" placeholder="••••">
+            <div class="hint">only interested individuals</div>
+        </div>
+        <button onclick="verifyPassword()">Unlock Portal</button>
+        <div id="loginError" style="color: #d90429; margin-top: 10px; font-weight: bold; text-align: center;"></div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="appContent" class="app-content">
+        <div class="form-group">
+            <label for="categorySelect">Select Food Category:</label>
+            <select id="categorySelect" onchange="updateFoodList()">
+                <option value="nonveg">I. LIST OF NON-VEGANS[cite: 1]</option>
+                <option value="vegan">II. LIST OF VEGANS[cite: 2]</option>
+                <option value="greens">III. LIST OF LEAF GREENS[cite: 3]</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="foodItemSelect">Select Specific Dish (or similar alternative):</label>
+            <select id="foodItemSelect">
+                <!-- Populated dynamically -->
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="portionMode">Select Quantity Type:</label>
+            <select id="portionMode" onchange="togglePortionInput()">
+                <option value="weight">Volume/Weight in Grams (e.g., 100g - 750g)</option>
+                <option value="count">Count Numbers (e.g., 4 Chappathis, 3 Puris)</option>
+            </select>
+        </div>
+
+        <div class="form-group" id="weightGroup">
+            <label for="foodWeight">Select Gram Weight:</label>
+            <select id="foodWeight">
+                <option value="100">100 grams</option>
+                <option value="200">200 grams</option>
+                <option value="300">300 grams</option>
+                <option value="350" selected>350 grams (Standard Meal)</option>
+                <option value="500">500 grams</option>
+                <option value="750">750 grams (Heavy Feast)</option>
+            </select>
+        </div>
+
+        <div class="form-group" id="countGroup" style="display:none;">
+            <label for="foodCount">Select Number of Items:</label>
+            <select id="foodCount">
+                <option value="1">1 piece</option>
+                <option value="2">2 pieces</option>
+                <option value="3">3 pieces</option>
+                <option value="4" selected>4 pieces</option>
+                <option value="5">5 pieces</option>
+                <option value="6">6 pieces</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="waterDrunk">Water already consumed today:</label>
+            <select id="waterDrunk">
+                <option value="250">250 ml (Small glass)</option>
+                <option value="500">500 ml (Two glasses)</option>
+                <option value="800" selected>800 ml (~3-4 glasses)</option>
+                <option value="1200">1,200 ml (Halfway mark)</option>
+                <option value="1600">1,600 ml (Good intake)</option>
+                <option value="2000">2,000 ml (Full target)</option>
+                <option value="2500">2,500+ ml (High intake)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="bladderStatus">Probable Urine in Bladder (Feeling):</label>
+            <select id="bladderStatus">
+                <option value="1">Empty / Light (Normal)</option>
+                <option value="2" selected>Moderate (Half full)</option>
+                <option value="3">Full / Urgent (Heavy pressure)</option>
+            </select>
+        </div>
+
+        <button onclick="calculateHydration()">Calculate My Water Prescription!</button>
+
+        <div class="result-card" id="resultCard">
+            <h3>🎯 Ktb's Prescription for the Next 2 Hours</h3>
+            <div class="metric">Recommended Intake: <span id="recWater">0</span> ml</div>
+            <div class="metric" id="actionAdvice">Action Plan: Processing...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+const foodDatabase = {
+    nonveg: [
+        {name: "Butter Chicken", type: "gravy", mult: 0.50},
+        {name: "Chettinad Pepper Chicken", type: "dry", mult: 0.85},
+        {name: "Chicken Biriyani", type: "dry", mult: 0.75},
+        {name: "Chicken Fried Rice", type: "dry", mult: 0.80},
+        {name: "Chicken Gravy or Kari", type: "gravy", mult: 0.50},
+        {name: "Chicken noodles", type: "dry", mult: 0.75},
+        {name: "Chicken Pizza", type: "dry", mult: 0.85},
+        {name: "Chicken Zinger Burger", type: "dry", mult: 0.85},
+        {name: "Chilly Chicken", type: "dry", mult: 0.85},
+        {name: "Crispy Chicken Strips", type: "dry", mult: 0.85},
+        {name: "Egg Omelet", type: "dry", mult: 0.70},
+        {name: "Fish Curry", type: "gravy", mult: 0.50},
+        {name: "Fish Fry or Fish Fingers", type: "dry", mult: 0.80},
+        {name: "Fish Tikka", type: "dry", mult: 0.80},
+        {name: "Fried Prawns", type: "dry", mult: 0.80},
+        {name: "Hot and Crispy Chicken", type: "dry", mult: 0.85},
+        {name: "Hot Chicken Wings", type: "dry", mult: 0.85},
+        {name: "Lamb Fry or Chop", type: "dry", mult: 0.85},
+        {name: "Mughlai Egg Curry", type: "gravy", mult: 0.50},
+        {name: "Mutton Biriyani", type: "dry", mult: 0.85},
+        {name: "Mutton Cutlet", type: "dry", mult: 0.80},
+        {name: "Mutton Gravy or Kari", type: "gravy", mult: 0.50},
+        {name: "Pepper Chicken", type: "dry", mult: 0.85},
+        {name: "Reshmi or Silk Chicken", type: "gravy", mult: 0.55},
+        {name: "Tandoori Chicken", type: "dry", mult: 0.80}
+    ],
+    vegan: [
+        {name: "Aloo Paratha with Butter", type: "bread", mult: 0.75},
+        {name: "Ash Gourd Fry", type: "fry", mult: 0.40},
+        {name: "Banana Flower Fry", type: "fry", mult: 0.50},
+        {name: "Banana Fry", type: "fry", mult: 0.60},
+        {name: "Banana Stem Fry", type: "fry", mult: 0.40},
+        {name: "Beans Fry", type: "fry", mult: 0.40},
+        {name: "Bell Pepper Fry", type: "fry", mult: 0.40},
+        {name: "Bisi Bele Bath", type: "standard", mult: 0.40},
+        {name: "Bittergourd Spicy Fry", type: "fry", mult: 0.50},
+        {name: "Bottle Gourd Stir Fry", type: "fry", mult: 0.35},
+        {name: "Garlic Lemon Broccoli", type: "fry", mult: 0.40},
+        {name: "Butter Kulcha", type: "bread", mult: 0.70},
+        {name: "Cabbage Fry", type: "fry", mult: 0.40},
+        {name: "Cauliflower Fry", type: "fry", mult: 0.45},
+        {name: "Chappathis", type: "bread", mult: 0.75},
+        {name: "Curd Rice", type: "soup", mult: 0.15},
+        {name: "Dal Tadka with Basmati Rice", type: "standard", mult: 0.45},
+        {name: "Drumstick and Brinjal Gravy", type: "gravy", mult: 0.45},
+        {name: "Idli", type: "bread", mult: 0.30},
+        {name: "Kadai Paneer", type: "gravy", mult: 0.50},
+        {name: "Kichadi", type: "standard", mult: 0.35},
+        {name: "Lemon Rice", type: "standard", mult: 0.40},
+        {name: "Malai Kofta", type: "gravy", mult: 0.55},
+        {name: "Masala Dosa", type: "bread", mult: 0.60},
+        {name: "Matar Paneer", type: "gravy", mult: 0.50},
+        {name: "MEALS", type: "standard", mult: 0.45},
+        {name: "Naan (2 Pieces)", type: "bread", mult: 0.75},
+        {name: "Onion Uthappam", type: "bread", mult: 0.50},
+        {name: "Palak Paneer", type: "gravy", mult: 0.45},
+        {name: "Pasta (Tomato Herb Penne)", type: "standard", mult: 0.50},
+        {name: "Vermicelli Payasam (Semiya Kheer)", type: "soup", mult: 0.20},
+        {name: "Phulkas (4 Pieces)", type: "bread", mult: 0.75},
+        {name: "Plain Dosa", type: "bread", mult: 0.55},
+        {name: "Pongal (Ven Pongal)", type: "standard", mult: 0.30},
+        {name: "Veg Pulao", type: "standard", mult: 0.40},
+        {name: "Pumpkin Fry (Kaddu ki Sabzi)", type: "fry", mult: 0.40},
+        {name: "Puri (3 Pieces)", type: "bread", mult: 0.80},
+        {name: "Puttu & Kadala Curry", type: "standard", mult: 0.65},
+        {name: "Rajma Curry (Kidney Bean Curry)", type: "gravy", mult: 0.50},
+        {name: "Rava Dosa", type: "bread", mult: 0.60},
+        {name: "Sambar Rice (Bisi Bele Bath style)", type: "standard", mult: 0.35},
+        {name: "Set Dosa (3 Pieces)", type: "bread", mult: 0.50},
+        {name: "Snake Gourd Fry", type: "fry", mult: 0.35},
+        {name: "Sweet Pongal", type: "standard", mult: 0.30},
+        {name: "Tandoori Roti", type: "bread", mult: 0.75},
+        {name: "Tomato Rice (Thakkali Sadham)", type: "standard", mult: 0.40},
+        {name: "Turnip (Roasted)", type: "fry", mult: 0.40},
+        {name: "Rava Uppuma", type: "standard", mult: 0.40},
+        {name: "Veg Biriyani", type: "standard", mult: 0.45},
+        {name: "Veg Fried Rice", type: "standard", mult: 0.50},
+        {name: "Vegetable Kurma", type: "gravy", mult: 0.45}
+    ],
+    greens: [
+        {name: "Agathi Hummingbird Leaf Curry", type: "greens", mult: 0.60},
+        {name: "Arugula Rocket Leaf Fry", type: "greens", mult: 0.60},
+        {name: "Chakravarthy Leaf Curry", type: "greens", mult: 0.60},
+        {name: "Collard Greens Fry", type: "greens", mult: 0.60},
+        {name: "Curry Leaf Powder", type: "greens", mult: 0.80},
+        {name: "Drumstick Leaf Curry", type: "greens", mult: 0.60},
+        {name: "Fenugreek Leaf Curry", type: "greens", mult: 0.60},
+        {name: "Gongura Rosella Pachadi", type: "greens", mult: 0.50},
+        {name: "Green Amaranth Pigweed Leaf Curry", type: "greens", mult: 0.60},
+        {name: "Kale Fry", type: "greens", mult: 0.60},
+        {name: "Lesser White Amaranth Mulai Leaf Curry", type: "greens", mult: 0.60},
+        {name: "Manathakkali Black Nightshade Leaf Curry", type: "greens", mult: 0.60},
+        {name: "Mustard Green Fry", type: "greens", mult: 0.60},
+        {name: "Palak Indian Spinach Curry", type: "greens", mult: 0.60},
+        {name: "Ponnaganti Dwarf Copperleaf Curry", type: "greens", mult: 0.60},
+        {name: "Purple Red Amaranth Leaf Curry", type: "greens", mult: 0.60},
+        {name: "Radish Leaf Curry", type: "greens", mult: 0.60},
+        {name: "Red Green Chinese Amaranth Leaf Curry", type: "greens", mult: 0.60},
+        {name: "Spinach Fry", type: "greens", mult: 0.60},
+        {name: "Spleen Amaranth Arai Leaf Curry", type: "greens", mult: 0.60},
+        {name: "Swiss Chard Leaf Fry", type: "greens", mult: 0.60},
+        {name: "Watercress Leaf Fry", type: "greens", mult: 0.60}
+    ]
+};
+
+function updateFoodList() {
+    const cat = document.getElementById('categorySelect').value;
+    const itemSelect = document.getElementById('foodItemSelect');
+    itemSelect.innerHTML = '';
+    
+    foodDatabase[cat].forEach(item => {
+        let opt = document.createElement('option');
+        opt.value = JSON.stringify(item);
+        opt.text = item.name;
+        itemSelect.appendChild(opt);
+    });
+}
+
+function togglePortionInput() {
+    const mode = document.getElementById('portionMode').value;
+    if (mode === 'count') {
+        document.getElementById('weightGroup').style.display = 'none';
+        document.getElementById('countGroup').style.display = 'block';
+    } else {
+        document.getElementById('weightGroup').style.display = 'block';
+        document.getElementById('countGroup').style.display = 'none';
+    }
+}
+
+function getTodayPassword() {
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    return day + month; 
+}
+
+function verifyPassword() {
+    const inputVal = document.getElementById('passCode').value.trim();
+    const correctPass = getTodayPassword();
+
+    if (inputVal === correctPass) {
+        document.getElementById('loginSection').classList.remove('active');
+        document.getElementById('appContent').classList.add('active');
+        updateFoodList();
+    } else {
+        document.getElementById('loginError').innerText = "Incorrect code! Check today's date (DDMM format).";
+    }
+}
+
+function calculateHydration() {
+    const itemData = JSON.parse(document.getElementById('foodItemSelect').value);
+    const mode = document.getElementById('portionMode').value;
+    const bladderStatus = parseInt(document.getElementById('bladderStatus').value);
+    
+    let totalGrams = 0;
+    if (mode === 'weight') {
+        totalGrams = parseFloat(document.getElementById('foodWeight').value);
+    } else {
+        const count = parseInt(document.getElementById('foodCount').value);
+        totalGrams = count * 40; 
+    }
+
+    let baseWindowWater = 200;
+    let foodWaterNeed = totalGrams * itemData.mult;
+    let totalCalculated = baseWindowWater + foodWaterNeed;
+    let advice = "";
+
+    if (bladderStatus === 3) {
+        totalCalculated = 50; 
+        advice = "<span class='highlight'>⚠️ Bladder is full! Avoid heavy drinking. Use micro-sips only over the next 2 hours until you visit the restroom.</span>";
+    } else if (bladderStatus === 2) {
+        totalCalculated = Math.min(totalCalculated, 250);
+        advice = "<span class='safe'>👍 Moderate bladder level. Consume your water gradually in small sips over the next 2 hours.</span>";
+    } else {
+        advice = "<span class='safe'>✨ Bladder is clear. You can comfortably consume your calculated target safely over the next 2 hours!</span>";
+    }
+
+    if (totalCalculated < 50) totalCalculated = 50;
+
+    document.getElementById('recWater').innerText = Math.round(totalCalculated);
+    document.getElementById('actionAdvice').innerHTML = advice;
+    document.getElementById('resultCard').style.display = 'block';
+}
+</script>
+
+</body>
+</html>
